@@ -1,0 +1,10 @@
+{
+    "name": "zoomable-svg",
+    "version": "0.1",
+    "description": "Zoom in on any SVG",
+    "main": "src/zoomable-svg.js",
+    "repository": "",
+    "author": "Andreas Borgen (https://github.com/Sphinxxxx)",
+    "dependencies": {
+    }
+}

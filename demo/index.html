@@ -7,21 +7,18 @@
     <script>
         window.onerror = function(msg, url, line) { alert('Error: '+msg+'\nURL: '+url+'\nLine: '+line); };
     </script>
-    <script src="../src/zoomable-svg.js"></script>
-    <!--script src="../dist/zoomable-svg.min.js"></script-->
+    <!--script src="../src/zoomable-svg.js"></script-->
+    <script src="../dist/zoomable-svg.min.js"></script>
 
     <style>
-        _ {
-            padding: 0;
-            margin: 0;
-        }
         body {
-            height: 100vh;
+            font-family: Georgia, sans-serif;
+            font-size: 20px;
             background-color: white;
             background-image: repeating-linear-gradient( 45deg, skyblue 0, skyblue 1px, transparent 0, transparent 40px),
                               repeating-linear-gradient(135deg, skyblue 0, skyblue 1px, transparent 0, transparent 40px);
         }
-        .wrapper {
+        #wrapper {
             padding: 1em;
             background: aliceblue;
         }
@@ -30,9 +27,13 @@
 
 <body>
     <h1>Zoomable SVG</h1>
-    <p>Example from <a href="https://commons.wikimedia.org/wiki/File:Bananas.svg">https://commons.wikimedia.org/wiki/File:Bananas.svg</a> & <a href="https://jakearchibald.github.io/svgomg/">https://jakearchibald.github.io/svgomg/</a></p>
+    <p>
+        Example image from<br/>
+        <a href="https://commons.wikimedia.org/wiki/File:Bananas.svg">https://commons.wikimedia.org/wiki/File:Bananas.svg</a><br/>
+        via <a href="https://jakearchibald.github.io/svgomg/">https://jakearchibald.github.io/svgomg/</a>
+    </p>
 
-    <div class="wrapper">
+    <div id="wrapper">
         <svg id="wrapped" xmlns="http://www.w3.org/2000/svg" width="559.6" height="373.3" version="1">
             <g fill-rule="evenodd">
                 <path d="M458.8 46.3s4 58-12 70-134 131-134 131l22 25 143-97 11-127-30-2z" fill="#ffc701"/>
@@ -75,7 +76,7 @@
     </svg>
 
     <script>
-        zoomableSvg('#wrapped');
+        zoomableSvg('#wrapped', document.querySelector('#wrapper'));
         zoomableSvg('#standalone');
     </script>
 

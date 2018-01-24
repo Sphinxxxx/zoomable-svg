@@ -1,10 +1,14 @@
+import dragTracker from './vendor/drag-tracker';
+
+
 function zoomableSvg(svg, options) {
     
     /* Utils */
     
     function relativeMousePos(mouseEvent, element, stayWithin) {
         function respectBounds(value, min,max) { return Math.max(min, Math.min(value, max)); }
-        const elmBounds = element.getBoundingClientRect(), x = mouseEvent.clientX - elmBounds.left, y = mouseEvent.clientY - elmBounds.top;
+        const elmBounds = element.getBoundingClientRect();
+        let x = mouseEvent.clientX - elmBounds.left, y = mouseEvent.clientY - elmBounds.top;
         if(stayWithin) { x = respectBounds(x, 0, elmBounds.width); y = respectBounds(y, 0, elmBounds.height); }
         return { x: x, y: y };
     }
@@ -12,17 +16,6 @@ function zoomableSvg(svg, options) {
     function Coord(x, y) { this.x = x; this.y = y; }
     Coord.prototype.negate = function() { return new Coord(-this.x, -this.y); };
     Coord.prototype.subtract = function(c2) { return new Coord(this.x - c2.x, this.y - c2.y); };
-
-    /*
-        https://github.com/Sphinxxxx/drag-tracker    
-    
-        MIT License
-        Copyright (c) 2017 Andreas Borgen
-    */
-    function dragTracker(d){function k(a,b,d,e){var c=a.clientX;a=a.clientY;if(b){var f=b.getBoundingClientRect();c-=f.left;a-=f.top;d&&(c-=d[0],a-=d[1]);e&&(c=Math.max(0,Math.min(c,f.width)),a=Math.max(0,Math.min(a,f.height)));b!==g&&(null!==l?l:"circle"===b.nodeName||"ellipse"===b.nodeName)&&(c-=f.width/2,a-=f.height/2)}return u?[Math.round(c),Math.round(a)]:[c,a]}function v(a){if(e=n?a.target.closest(n):{})a.preventDefault(),a.stopPropagation(),m=n&&w?k(a,e):[0,0],c=k(a,g,m),u&&(c=c.map(Math.round)),
-    x&&x(e,c)}function y(a){e&&(a.preventDefault(),a.stopPropagation(),a=k(a,g,m,!z),B(e,a,c))}function h(a){if(e){if(p||q)a=k(a,g,m,!z),q&&c[0]===a[0]&&c[1]===a[1]&&q(e,c),p&&p(e,a,c);e=null}}function A(a){h(r(a))}function t(a){return void 0!==a.buttons?1===a.buttons:1===a.which}function r(a){var b=a.targetTouches[0];b||(b=a.changedTouches[0]);b.preventDefault=a.preventDefault.bind(a);b.stopPropagation=a.stopPropagation.bind(a);return b}var f=Element.prototype;f.matches||(f.matches=f.msMatchesSelector||
-    f.webkitMatchesSelector);f.closest||(f.closest=function(a){var b=this;do{if(b.matches(a))return b;b="svg"===b.tagName?b.parentNode:b.parentElement}while(b);return null});d=d||{};var g=d.container||document.documentElement,n=d.selector,B=d.callback||console.log,x=d.callbackDragStart,p=d.callbackDragEnd,q=d.callbackClick,u=!1!==d.roundCoords,z=!1!==d.dragOutside,w=d.handleOffset||!1!==d.handleOffset,l=null;switch(w){case "center":l=!0;break;case "topleft":case "top-left":l=!1}var e,m,c;g.addEventListener("mousedown",
-    function(a){t(a)&&v(a)});g.addEventListener("touchstart",function(a){1!==a.touches.length?h(a):v(r(a))});window.addEventListener("mousemove",function(a){e&&(t(a)?y(a):h(a))});window.addEventListener("touchmove",function(a){1!==a.touches.length?h(a):y(r(a))});window.addEventListener("mouseup",function(a){e&&!t(a)&&h(a)});g.addEventListener("touchend",A);g.addEventListener("touchcancel",A)}
 
     /* /Utils */
 
@@ -189,3 +182,6 @@ function zoomableSvg(svg, options) {
     
     return _public;
 }
+
+
+export default zoomableSvg;

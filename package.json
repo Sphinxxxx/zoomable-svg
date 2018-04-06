@@ -1,20 +1,24 @@
 {
   "name": "zoomable-svg",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Zoom in on any SVG",
   "main": "dist/zoomable-svg.min.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/Sphinxxxx/zoomable-svg.git"
   },
+  "homepage": "https://github.com/Sphinxxxx/zoomable-svg",
   "author": "Andreas Borgen (https://github.com/Sphinxxxx)",
   "license": "MIT",
-  "dependencies": {},
+  "dependencies": {
+    "drag-tracker": "^1.0.0"
+  },
   "devDependencies": {
     "babel-core": "^6.26.0",
     "babel-plugin-external-helpers": "^6.22.0",
     "babel-preset-env": "^1.6.1",
     "rollup-plugin-babel": "^3.0.3",
+    "rollup-plugin-node-resolve": "^3.3.0",
     "rollup-plugin-uglify": "^3.0.0"
   }
 }

@@ -1,4 +1,4 @@
-import dragTracker from './vendor/drag-tracker';
+import dragTracker from 'drag-tracker';
 
 
 function zoomableSvg(svg, options) {
@@ -23,14 +23,26 @@ function zoomableSvg(svg, options) {
     if(typeof(svg) === 'string') { svg = document.querySelector(svg); }
     options = options || {};
     
-    let _ui = options.container || svg,
-        _dragOffset,
+    const _ui = options.container || svg;
+
+    let _panOffset,
         _pinchState,
         _zoom,
+        _viewport,
+        _viewBox;
+    
+    function init() {
+        function resetViewBox() {
+            _zoom = _viewport.width/_viewBox.width;
+            //Adjust the SVG's viewBox to the new aspect ratio,
+            //or else vp2vb() calculations won't be accurate:
+            changeZoom(0, new Coord(0,0));
+        }
+    
         _viewport = {
             width: _ui.clientWidth,
-            height: _ui.clientHeight
-        },
+            height: _ui.clientHeight,
+        };
         _viewBox = (function parseVB(vbAttr) {
             const vb = vbAttr && vbAttr.split(/[ ,]/)
                                         .filter(x => x.length)
@@ -44,81 +56,81 @@ function zoomableSvg(svg, options) {
                 };
             }
         })(svg.getAttribute('viewBox'));
-    
-    const _public = {
-        getViewBox: getViewBox,
-        getZoom: function() { return _zoom; },
-        vp2vb: vp2vb
-    };
 
-    if(_viewBox) {
-        //Adjust the zoom in case the SVG has been resized via CSS:
-        _zoom = _viewport.width/_viewBox.width;
-        //If the SVG is inside a container, adjust the SVG's viewBox to the container's aspect ratio,
-        //or else vp2vb() calculations won't be accurate:
-        if(options.container) {
-            changeZoom(0, new Coord(0,0));
+        if(_viewBox) {
+            //Adjust the zoom in case the SVG has been resized via CSS:
+            resetViewBox();
         }
-    }
-    else {
-        _zoom = 1;
-        _viewBox = {
-            left: 0,
-            top: 0,
-            width: _viewport.width,
-            height: _viewport.height
-        };
-        updateViewBox();
-    }
+        else {
+            _zoom = 1;
+            _viewBox = {
+                left: 0,
+                top: 0,
+                width: _viewport.width,
+                height: _viewport.height
+            };
+            updateViewBox();
+        }
+
+        window.addEventListener('resize', e => {
+            _viewport = {
+                width: _ui.clientWidth,
+                height: _ui.clientHeight,
+            };
+            resetViewBox();
+        });
+        
+        
+        //User input - Zoom
+        _ui.addEventListener('wheel', function(e) {
+            e.preventDefault();
+            changeZoom((e.deltaY > 0) ? -.1 : .1, relativeMousePos(e, _ui));
+        });
+        _ui.addEventListener('touchmove', function(te) {
+            var touches = te.touches; //touchEvent.targetTouches;
+            if(touches.length !== 2) {
+                _pinchState = null;
+                return;
+            }
+            te.preventDefault();
+            //console.log(touches[0].identifier, touches[1].identifier);
     
-    //Zoom
-    _ui.addEventListener('wheel', function(e) {
-        e.preventDefault();
-        changeZoom((e.deltaY > 0) ? -.1 : .1, relativeMousePos(e, _ui));
-    });
-    _ui.addEventListener('touchmove', function(te) {
-        var touches = te.touches; //touchEvent.targetTouches;
-        if(touches.length !== 2) {
+            const p1 = relativeMousePos(touches[0], _ui),
+                  p2 = relativeMousePos(touches[1], _ui),
+                  dx = p1.x - p2.x,
+                  dy = p1.y - p2.y,
+                  pinch = {
+                      center: new Coord((p1.x + p2.x)/2, (p1.y + p2.y)/2),
+                      dist: Math.sqrt(dx*dx + dy*dy),
+                  };
+    
+            if(_pinchState) {
+                moveViewport(pinch.center.subtract(_pinchState.center));
+                changeZoom((pinch.dist/_pinchState.dist) - 1, pinch.center);
+            }
+            _pinchState = pinch;
+        });
+        _ui.addEventListener('touchend', function (te) {
             _pinchState = null;
-            return;
-        }
-        te.preventDefault();
-        //console.log(touches[0].identifier, touches[1].identifier);
+        });
+        
+        //User input - Pan
+        dragTracker({
+            container: _ui,
+            //selector: ...,
+            callbackDragStart: (_, pos) => {
+                _panOffset = pos;
+            },
+            callback: (_, pos, start) => {
+                moveViewport(new Coord(pos[0] - _panOffset[0], pos[1] - _panOffset[1]));
+                _panOffset = pos;
+            },
+            callbackDragEnd: () => {
+                _panOffset = null;
+            }
+        });
+    }
 
-        const p1 = relativeMousePos(touches[0], _ui),
-              p2 = relativeMousePos(touches[1], _ui),
-              dx = p1.x - p2.x,
-              dy = p1.y - p2.y,
-              pinch = {
-                  center: new Coord((p1.x + p2.x)/2, (p1.y + p2.y)/2),
-                  dist: Math.sqrt(dx*dx + dy*dy),
-              };
-
-        if(_pinchState) {
-            moveViewport(pinch.center.subtract(_pinchState.center));
-            changeZoom((pinch.dist/_pinchState.dist) - 1, pinch.center);
-        }
-        _pinchState = pinch;
-    });
-    _ui.addEventListener('touchend', function (te) {
-        _pinchState = null;
-    });
-    
-    //Drag
-    dragTracker({
-        container: _ui,
-        //selector: ...,
-        callbackDragStart: (_, pos) => {
-            _dragOffset = pos;
-        },
-        callback: (_, pos, start) => {
-            moveViewport(new Coord(pos[0] - _dragOffset[0], pos[1] - _dragOffset[1]));
-            _dragOffset = pos;
-        },
-        callbackDragEnd: () => {
-            _dragOffset = null;
-        }
-    });
 
     function changeZoom(delta, viewportCenter) {
         //console.log(delta, center);
@@ -157,6 +169,7 @@ function zoomableSvg(svg, options) {
         //console.log(viewportDelta, vbDelta);
         updateViewBox();
     }
+
     //Viewport coordinate -> viewBox coordinate:
     function vp2vb(vpCoord) {
         var relX = vpCoord.x/_viewport.width,
@@ -170,16 +183,31 @@ function zoomableSvg(svg, options) {
         //console.log(_viewBox, [relX, relY], '->', vbCoord);
         return vbCoord;
     }
-    function getViewBox() {
-        return [_viewBox.left, _viewBox.top, _viewBox.width, _viewBox.height];
-    }
+
     function updateViewBox() {
         const viewBox = getViewBox();
         
         svg.setAttribute('viewBox', viewBox);
         if(options.onChanged) { options.onChanged.call(_public); }
     }
-    
+    function getViewBox() {
+        return [_viewBox.left, _viewBox.top, _viewBox.width, _viewBox.height];
+    }
+
+
+    const _public = {
+        Coord,
+        vp2vb,
+
+        getZoom() { return _zoom; },
+        setZoom,
+        moveViewport,
+
+        getViewBox,
+    };
+
+    init();
+
     return _public;
 }
 

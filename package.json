@@ -1,8 +1,13 @@
 {
   "name": "@sphinxxxx/zoomable-svg",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Zoom in on any SVG",
   "main": "dist/zoomable-svg.min.js",
+  "module": "src/zoomable-svg.js",
+  "files": [
+    "src/",
+    "dist/"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/Sphinxxxx/zoomable-svg.git"

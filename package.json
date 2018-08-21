@@ -1,6 +1,6 @@
 {
-  "name": "zoomable-svg",
-  "version": "0.2.0",
+  "name": "@sphinxxxx/zoomable-svg",
+  "version": "0.2.1",
   "description": "Zoom in on any SVG",
   "main": "dist/zoomable-svg.min.js",
   "repository": {
@@ -10,6 +10,11 @@
   "homepage": "https://github.com/Sphinxxxx/zoomable-svg",
   "author": "Andreas Borgen (https://github.com/Sphinxxxx)",
   "license": "MIT",
+  "scripts": {
+    "prepublish":  "bash ./scripts/prepub.sh",
+    "postpublish": "bash ./scripts/postpub.sh",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
   "dependencies": {
     "drag-tracker": "^1.0.0"
   },
